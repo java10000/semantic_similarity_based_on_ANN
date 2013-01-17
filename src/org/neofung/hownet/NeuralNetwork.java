@@ -1,5 +1,5 @@
 /**
- * 
+ * 用于进行神经网络模型计算
  */
 package org.neofung.hownet;
 
