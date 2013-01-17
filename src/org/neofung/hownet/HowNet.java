@@ -1,5 +1,5 @@
 /**
- * 
+ * 用于在知网中读取分析义原信息
  */
 package org.neofung.hownet;
 
