@@ -34,11 +34,13 @@ public class HowNet {
 	// mSememesFather保存的是每个义原的上位义是谁
 	private HashMap<String, String> mSememesFather;
 
-	// mGlossary保存的是glossary.dat的数据, MultiHashMap 运行一个key值保存多个value,
-	// Pair中的First保存的是key的词性, second保存的是key的义项
+	// mGlossary保存的是glossary.dat的数据. MultiHashMap
+	// 运行一个key值保存多个value. mGlossary中的key记录的是词语, 而value是个List记录的是这个词语的全部义项.
+	// 在List中Pair的First保存的是词语这个义项的词性, second保存的是这个义项的义原集合
 	private MultiHashMap<String, List<Pair<String, List<String>>>> mGlossary;
 
-	// mWhole是从WHOLD.DAT中获取的数据，是一个单纯的数组
+	// mWhole是从WHOLD.DAT中获取的数据, 是一个单纯的数组.
+	// 数组的元素是Pair, Pair中的first是义原, 而second是这个义原的上位义在数组中的位置
 	private ArrayList<Pair<String, Integer>> mWhole;
 
 	public HowNet() {
@@ -61,6 +63,12 @@ public class HowNet {
 		return true;
 	}
 
+	/**
+	 * 初始化
+	 * 
+	 * @param rebuild
+	 *            是否重新读取原始数据并重新构造过去保存的内部数据
+	 */
 	private void init(boolean rebuild) {
 		if (rebuild) {
 			readWHOLE();
@@ -72,7 +80,7 @@ public class HowNet {
 			try {
 				loadData();
 			} catch (Exception e) {
-				// 假如序列化读入异常，则重新读取
+				// 假如序列化读入异常, 则重新读取
 				readWHOLE();
 				readGlossary();
 				getSememesCount();
@@ -99,7 +107,7 @@ public class HowNet {
 	}
 
 	/**
-	 * 整理带符号的义原，如果某个义原带有符号，则它的上位义也带有符号
+	 * 整理带符号的义原, 如果某个义原带有符号, 则它的上位义也带有符号
 	 */
 	private void sortSememes() {
 		System.out.println(mSememesMap.size());
@@ -138,16 +146,17 @@ public class HowNet {
 	 * 获取义原的上位义
 	 * 
 	 * @param sememe
-	 * @return
+	 *            义原的名字
+	 * @return 义原的上位义, 如果没有则返回null
 	 */
 	public String getFather(String sememe) {
 		return mSememesFather.get(sememe);
 	}
 
 	/**
-	 * 读取WHOLE.DAT的数据
+	 * 读取WHOLE.DAT的数据, WHOLE.DAT中保存的是全部基本义原
 	 * 
-	 * @return
+	 * @return 全部基本义原的数量
 	 */
 	private int readWHOLE() {
 		if (null != mWhole)
@@ -180,9 +189,9 @@ public class HowNet {
 	}
 
 	/**
-	 * 读取glossary.dat的数据
+	 * 读取glossary.dat的数据, glossary.dat的每一条记录保存的是一个义项, 义项的词性和义项所对应的义原
 	 * 
-	 * @return
+	 * @return glossary.dat中全部不同的词语
 	 */
 	private int readGlossary() {
 		if (null != mGlossary)
@@ -228,9 +237,9 @@ public class HowNet {
 
 	/**
 	 * 计算总共有多少种不同的义原, 并将它们全部加入mSememesMap中, 其中mSememesMap的value是一个数值,
-	 * 指示义原在向量中的位置。
+	 * 指示义原在向量中的位置.
 	 * 
-	 * @return
+	 * @return 全部义原的数目, 包括基本义原和关系义原
 	 */
 	public int getSememesCount() {
 		if (null == mSememesMap) {
@@ -265,10 +274,11 @@ public class HowNet {
 	}
 
 	/**
-	 * 获取词语word对应的全部义项。
+	 * 获取词语word对应的全部义项.
 	 * 
 	 * @param word
-	 * @return
+	 *            词语
+	 * @return 一个保护这个词语全部义项的列表, 如果没有则返回null
 	 */
 	@SuppressWarnings("unchecked")
 	public List<Pair<String, List<String>>> getSemantics(String word) {
@@ -282,7 +292,8 @@ public class HowNet {
 	 * 是否包含word这个词
 	 * 
 	 * @param word
-	 * @return
+	 *            词语
+	 * @return 数据中包含, 则返回true, 否则返回false
 	 */
 	public boolean containsWord(String word) {
 		return mGlossary.containsKey(word);
@@ -292,7 +303,8 @@ public class HowNet {
 	 * 获得每个义原的ID号
 	 * 
 	 * @param sememe
-	 * @return
+	 *            义原
+	 * @return 如果义原存在, 返回义原的ID号, 否则返回-1
 	 */
 	public int getSememeId(String sememe) {
 		Integer integer = mSememesMap.get(sememe);
@@ -307,7 +319,8 @@ public class HowNet {
 	 * 往mSememesMap中插入义原
 	 * 
 	 * @param sememe
-	 * @return
+	 *            义原
+	 * @return 插入后的义原的ID号, 如果本身就已经存在则不插入切返回已有的ID号
 	 */
 	public int putSememe(String sememe) {
 		if (!mSememesMap.containsKey(sememe)) {
@@ -384,6 +397,17 @@ public class HowNet {
 
 }
 
+/**
+ * MultiHashMap 用于保存一个key对应多个value的关系的HashMap
+ * 
+ * @author neo
+ * @version 2012-12-14
+ * 
+ * @param <K>
+ *            Key.
+ * @param <V>
+ *            The List of value.
+ */
 class MultiHashMap<K extends Object, V extends List> extends AbstractMap
 		implements Serializable {
 	private static final long serialVersionUID = 1041712953752728541L;
@@ -426,25 +450,61 @@ class MultiHashMap<K extends Object, V extends List> extends AbstractMap
 
 	private final Map iMap;
 
+	@Override
+	public String toString() {
+		return "MultiHashMap [iMap=" + iMap + "]";
+	}
+
 }
 
+/**
+ * Pair 类用于表示一个first和second的对组合, 是一个可序列化的类
+ * 
+ * @author neo
+ * @version 2012-12-15
+ * 
+ * @param <K>
+ *            First
+ * @param <V>
+ *            Second
+ */
 class Pair<K, V> implements Serializable {
 	private static final long serialVersionUID = 1041712221752728541L;
 	private K first;
 	private V second;
 
+	/**
+	 * 获取first
+	 * 
+	 * @return
+	 */
 	public K getFirst() {
 		return first;
 	}
 
+	/**
+	 * 设置second
+	 * 
+	 * @param val
+	 */
 	public void setFirst(K val) {
 		first = val;
 	}
 
+	/**
+	 * 获取second
+	 * 
+	 * @return
+	 */
 	public V getSecond() {
 		return second;
 	}
 
+	/**
+	 * 设置second
+	 * 
+	 * @param val
+	 */
 	public void setSecond(V val) {
 		second = val;
 	}
