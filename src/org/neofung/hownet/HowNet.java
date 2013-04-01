@@ -31,6 +31,13 @@ public class HowNet {
 	// mSememesMap保存的是每个义原的ID号
 	private HashMap<String, Integer> mSememesMap;
 
+	/**
+	 * @return the mWhole
+	 */
+	public ArrayList<Pair<String, Integer>> getSememes() {
+		return mWhole;
+	}
+
 	// mSememesFather保存的是每个义原的上位义是谁
 	private HashMap<String, String> mSememesFather;
 
@@ -45,6 +52,22 @@ public class HowNet {
 
 	public HowNet() {
 		init(false);
+	}
+
+	/**
+	 * 义原sememe是否叶子
+	 * 
+	 * @param sememe
+	 * @return
+	 */
+	public boolean isLeaf(String sememe) {
+		if (!mSememesMap.containsKey(sememe)) {
+			return false;
+		}
+		if (mSememesFather.containsValue(sememe)) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -322,7 +345,7 @@ public class HowNet {
 	 *            义原
 	 * @return 插入后的义原的ID号, 如果本身就已经存在则不插入切返回已有的ID号
 	 */
-	public int putSememe(String sememe) {
+	private int putSememe(String sememe) {
 		if (!mSememesMap.containsKey(sememe)) {
 			int count = mSememesMap.size();
 			mSememesMap.put(sememe, Integer.valueOf(count));
@@ -335,7 +358,7 @@ public class HowNet {
 	/**
 	 * 保存各个类变量数据
 	 */
-	public void saveData() {
+	private void saveData() {
 		try {
 			ObjectOutputStream outputStream = new ObjectOutputStream(
 					new FileOutputStream("neo_glossary"));
@@ -390,11 +413,15 @@ public class HowNet {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		HowNet data = new HowNet();
-		System.exit(0);
+		ArrayList<Pair<String, Integer>> list = data.getSememes();
+		for (int i = 955; i < list.size(); i++) {
+			Pair<String, Integer> pair = list.get(i);
+			if (data.isLeaf(pair.getFirst())) {
+				System.out.println(pair);
+			}
+		}
 	}
-
 }
 
 /**
@@ -511,6 +538,6 @@ class Pair<K, V> implements Serializable {
 
 	@Override
 	public String toString() {
-		return first + ":" + second;
+		return first + ", " + second;
 	}
 }
